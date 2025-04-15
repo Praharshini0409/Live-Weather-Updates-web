@@ -4,22 +4,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Search</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://images.hdqwalls.com/wallpapers/clouds-summer-weather-5k-1b.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .weather-app {
+            background: rgba(238, 241, 241, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            /* Increased box size */
+        }
+        
+        .weather-app input {
+            width: 80%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .weather-app button {
+            padding: 12px 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .weather-app button:hover {
+            background: #0056b3;
+        }
+        
+        .weather-result {
+            margin-top: 20px;
+        }
+        
+        .weather-result h3 {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <input type="text" id="city-input" placeholder="Enter city name">
-        <button id="search-button">Search</button>
-
-        <h2 id="city-name"></h2>
-        <p id="city-time"></p>
-        <p id="city-temp"></p>
-        <p id="error-message" class="error"></p>
+    <div class="weather-app">
+        <h1>Weather App</h1>
+        <input type="text" id="city" placeholder="Enter city name">
+        <button onclick="getWeather()">Get Weather Information</button>
+        <div class="weather-result" id="weather-result"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        async function getWeather() {
+            const city = document.getElementById('city').value;
+            const resultDiv = document.getElementById('weather-result');
+
+            if (!city) {
+                resultDiv.innerHTML = '<p>Please enter a city name.</p>';
+                return;
+            }
+
+            try {
+                const apiKey = '5269ea5dcd744af2978125440251402';
+                const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=yes`);
+
+                if (!response.ok) {
+                    throw new Error('City not found');
+                }
+
+                const data = await response.json();
+
+                resultDiv.innerHTML = `
+                    <h3>${data.location.name}, ${data.location.country}</h3>
+                    <p><strong>Temperature:</strong> ${data.current.temp_c}°C</p>
+                    <p><strong>Condition:</strong> ${data.current.condition.text}</p>
+                    <p><strong>Humidity:</strong> ${data.current.humidity}%</p>
+                    <p><strong>Air Quality Index (AQI):</strong> ${data.current.air_quality.pm2_5.toFixed(2)}</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
 </body>
 
 </html>
